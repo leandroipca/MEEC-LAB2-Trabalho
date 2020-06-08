@@ -27,9 +27,9 @@ azul_navy = [139, 0, 0]
 vermelho_escuro = [0, 0, 139]
 
 # >>> Escolher qual metodo de detecção de faces
-# detectorFace = cv2.CascadeClassifier("Haar/haarcascade_frontalface_default.xml")
+detectorFace = cv2.CascadeClassifier("Haar/haarcascade_frontalface_default.xml")
 # detectorFace = cv2.CascadeClassifier("Haar/haarcascade_frontalface_alt.xml")
-detectorFace = cv2.CascadeClassifier("Haar/haarcascade_frontalcatface.xml")
+# detectorFace = cv2.CascadeClassifier("Haar/haarcascade_frontalcatface.xml")
 
 # >>> A utilizar o LBPH com as características
 reconhecedor = cv2.face.LBPHFaceRecognizer_create(2, 2, 7, 7, 15)
