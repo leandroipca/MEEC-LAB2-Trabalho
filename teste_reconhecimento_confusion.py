@@ -1,3 +1,28 @@
+'''
+Acurácia
+É a proporção de predições corretas, sem considerar o que é positivo e o que negativo e sim o acerto total. É dada por:
+
+ACC=(VP+VN)/(P+N)
+
+em que p é o número de eventos (Y=1, chamado aqui de positivo) e n é o número de não eventos
+(^Y=0, chamado aqui de negativo).
+
+Sensibilidade
+É a proporção de verdadeiros positivos, ou seja, avalia a capacidade do modelo classificar um indivíduo como evento
+$ (^Y=1) $ dado que realmente ele é evento (Y=1):
+
+SENS=VP/(VP+FN)
+
+Especificidade
+
+É a proporção de verdadeiros negativos, isto é, avalia a capacidade do modelo predizer um indivíduo como não evento
+$ (\hat{Y}=0) $ dado que ele realmente é não evento (Y=0).
+
+ESPEC=VN/(VN+FP)
+
+'''
+
+
 from typing import List
 import PIL
 from PIL import Image
@@ -156,7 +181,7 @@ for caminhoImagem in caminhos:
             FP += 1
 
         print("Total de Acertos", totalAcertosLBPH)
-        cv2.imshow("LBPH sem tratamento", imagemFaceNP)
+        #cv2.imshow("LBPH sem tratamento", imagemFaceNP)
         cv2.waitKey(1000)
 
     # For das imagens com brilho
@@ -188,7 +213,7 @@ for caminhoImagem in caminhos:
             FP_Brilho += 1
 
         print("Total de Acertos", totalAcertosLBPH)
-        cv2.imshow("Brilho", brilho_imagemNP)
+        #cv2.imshow("Brilho", brilho_imagemNP)
         cv2.waitKey(1000)
 
     # For das imagens escurecidas
@@ -219,7 +244,7 @@ for caminhoImagem in caminhos:
             FP_Escuro += 1
 
         print("Total de Acertos", totalAcertosLBPH)
-        cv2.imshow("Escuro", escuro_imagemNP)
+        #cv2.imshow("Escuro", escuro_imagemNP)
         cv2.waitKey(1000)
 
     # For das imagens com blur
@@ -250,30 +275,108 @@ for caminhoImagem in caminhos:
             FP_Blur += 1
 
         print("Total de Acertos", totalAcertosLBPH)
-        cv2.imshow("Efeito Blur", blurImgNP)
+        #cv2.imshow("Efeito Blur", blurImgNP)
         cv2.waitKey(1000)
+
+
+# Calculos gerais sobre a matriz de confusão
 
 FN = FN + FN_Brilho + FN_Escuro + FN_Blur
 FP = FP + FP_Brilho + FP_Escuro + FP_Blur
 
 accuracy = TPTF/cont
-precision = TPTF/(TPTF+FP)
-recall = TPTF/(TPTF+FN)
-F1 = ((2 * precision * recall)/(precision + recall))
+precision_All = TPTF/(TPTF+FP)
+recall_All = TPTF/(TPTF+FN)
+F1 = ((2 * precision_All * recall_All)/(precision_All + recall_All))
 
+def precision(classe):
+    #l = linha / c = coluna
+    c  = classe - 1
+    den = 0
+    for l in range(0,8):
+        den += matriz[l][c]
+    precision = (((matriz[c][c])/den)*100)
+    return precision
 
-print ('Matriz de Resultados: ')
+def recall(classe):
+    #l = linha / c = coluna
+    l  = classe - 1
+    den = 0
+    for c in range(0,8):
+        den += matriz[l][c]
+    recall = (((matriz[l][l])/den)*100)
+    return recall
+
+def specificity(classe):
+    #l = linha / c = coluna
+    l = classe - 1
+    c = classe - 1
+    soma = 0
+    den = 0
+    for c in range(0,8):
+        soma += matriz[l][c]
+    c = classe - 1
+    for l in range(0,8):
+        soma += matriz[l][c]
+        den += matriz[l][c]
+    TN = (cont-(soma-matriz[classe-1][classe-1]))
+    specificity = (TN/(TN+(den-matriz[classe-1][classe-1])))
+    return specificity
+
+print('-=' * 30)
+print('Precisão de cada foto')
+print('-=' * 30)
+print ('Precisão Foto 1 = ', precision(1))
+print ('Precisão Foto 2 = ', precision(2))
+print ('Precisão Foto 3 = ', precision(3))
+print ('Precisão Foto 4 = ', precision(4))
+print ('Precisão Foto 5 = ', precision(5))
+print ('Precisão Foto 6 = ', precision(6))
+print ('Precisão Foto 7 = ', precision(7))
+print ('Precisão Foto 8 = ', precision(8))
+print('-=' * 30)
+print('')
+print('-=' * 30)
+print('Recall (Sensibilidade) de cada foto')
+print('-=' * 30)
+print ('Recall Foto 1 = ', recall(1))
+print ('Recall Foto 2 = ', recall(2))
+print ('Recall Foto 3 = ', recall(3))
+print ('Recall Foto 4 = ', recall(4))
+print ('Recall Foto 5 = ', recall(5))
+print ('Recall Foto 6 = ', recall(6))
+print ('Recall Foto 7 = ', recall(7))
+print ('Recall Foto 8 = ', recall(8))
+print('-=' * 30)
+print('')
+print('-=' * 30)
+print('Specificity de cada foto')
+print('-=' * 30)
+print ('Specificity Foto 1 = ', specificity(1))
+print ('Specificity Foto 2 = ', specificity(2))
+print ('Specificity Foto 3 = ', specificity(3))
+print ('Specificity Foto 4 = ', specificity(4))
+print ('Specificity Foto 5 = ', specificity(5))
+print ('Specificity Foto 6 = ', specificity(6))
+print ('Specificity Foto 7 = ', specificity(7))
+print ('Specificity Foto 8 = ', specificity(8))
+print('-=' * 30)
+print('')
+print('-=' * 30)
+print ('Matriz de Confusão: ')
 print (np.matrix(matriz))
+print('-=' * 30)
+print('')
 print ('Falso Positivo = ', FP)
 print ('Falso Negativo = ', FN)
-print ('Total de TP e TF = ', TPTF)
-print ('Total de imagens testadas', cont)
-print ('============================================')
-print ('Accuracy = ', accuracy)
-print ('Precision = ', precision)
-print ('Recall = ', recall)
+print ('Total de TPTN Todos = ', TPTF)
+print ('Total de imagens testadas = ', cont)
+print('-=' * 30)
+print ('Accuracy Total= ', accuracy)
+print ('Precision Total = ', precision_All)
+print ('Recall Total = ', recall_All)
 print ('F1 Score = ', F1)
-print ('============================================')
+print('-=' * 30)
 
 
 percentualAcertoLBPH = (totalAcertosLBPH / cont) * 100
