@@ -35,13 +35,9 @@ import cv2
 import os
 
 import numpy as np
-
+from sklearn import metrics
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix
 from openpyxl import Workbook
-
-arquivo_excel = Workbook()
-from openpyxl import load_workbook
-arquivo_excel = load_workbook('resultados.xlsx')
-
 
 detectorFace = cv2.CascadeClassifier("Haar/haarcascade_frontalface_alt.xml")
 
@@ -98,8 +94,11 @@ matriz = [[0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0], [0,0,0,0,0,0,
 FP = FP_Brilho = FP_Escuro=  FP_Blur = 0
 FN = FN_Brilho = FN_Escuro = FN_Blur = 0
 TPTF = 0
+Y_predict = []
+Y_test = []
 
-caminhos = [os.path.join('testes_reconhecimento/teste', f) for f in os.listdir('testes_reconhecimento/teste')]
+caminhos = [os.path.join('testes_reconhecimento/hard_test', f) for f in os.listdir('testes_reconhecimento/hard_test')]
+
 
 # Classificador LBPH
 for caminhoImagem in caminhos:
@@ -151,6 +150,7 @@ for caminhoImagem in caminhos:
     #facesDetectadas_rotate = detectorFace.detectMultiScale(rotate_imagemNP, minNeighbors=8)
 
     # For das faces sem tratamento
+
     for (x, y, l, a) in facesDetectadas:
 
         # Detecção facial
@@ -166,6 +166,10 @@ for caminhoImagem in caminhos:
         print(str(idatual) + " foi classificado como " + str(idprevistoLBPH) + " - " + "Confiança: " +
               str(totalConfiancaLBPH))
         cont += 1
+        Y_predict.append(idprevistoLBPH)
+        Y_test.append(idatual)
+        #print("Y_predict", Y_predict)
+        #print("Y_test", Y_test)
         if idprevistoLBPH == idatual:
         #if idprevistoLBPH == 8:
             totalAcertosLBPH += 1
@@ -174,6 +178,7 @@ for caminhoImagem in caminhos:
             matriz[idatual-1][idprevistoLBPH-1] += 1
             totalConfiancaLBPH += confiancaLBPH
             TPTF += 1
+
         else:
             totalAcertosLBPH -= 1
             matriz[idatual - 1][idprevistoLBPH - 1] += 1
@@ -183,7 +188,7 @@ for caminhoImagem in caminhos:
         print("Total de Acertos", totalAcertosLBPH)
         #cv2.imshow("LBPH sem tratamento", imagemFaceNP)
         cv2.waitKey(1000)
-
+    """
     # For das imagens com brilho
     for (x, y, l, a) in facesDetectadas_brilho:
         # Detecção facial
@@ -277,8 +282,28 @@ for caminhoImagem in caminhos:
         print("Total de Acertos", totalAcertosLBPH)
         #cv2.imshow("Efeito Blur", blurImgNP)
         cv2.waitKey(1000)
+    """
+
+# outra abordagem
+
+cm = metrics.confusion_matrix(Y_test, Y_predict, labels=[1, 2, 3, 4, 5, 6, 7, 8])
+print("Confusion Matrix:")
+print(cm)
+
+prfs = metrics.precision_recall_fscore_support(Y_test, Y_predict)
+print("Precision Recall F-score Support:")
+print(prfs)
+
+accuracy = metrics.accuracy_score(Y_test, Y_predict)
+print("Accuracy:")
+print(accuracy)
+
+cr = metrics.classification_report(Y_test, Y_predict)
+print("Classification Report:")
+print(cr)
 
 
+"""
 # Calculos gerais sobre a matriz de confusão
 
 FN = FN + FN_Brilho + FN_Escuro + FN_Blur
@@ -383,3 +408,4 @@ percentualAcertoLBPH = (totalAcertosLBPH / cont) * 100
 #totalConfiancaLBPH = totalConfiancaLBPH
 print('Percentual de acerto: ' + str(percentualAcertoLBPH) + '%')
 #print("Total confiança: " + str(totalConfiancaLBPH))
+"""

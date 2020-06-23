@@ -36,7 +36,7 @@ reconhecedor = cv2.face.LBPHFaceRecognizer_create(2, 2, 7, 7, 15)
 
 # >>> Escolher a base (treinamento com redimensionamento ou sem)
 # reconhecedor.read("Recogniser/trainingDataLBPH.xml") # classificador de teste
-reconhecedor.read("classificadorLBPH.yml")  # classificador sem redimensionamento
+reconhecedor.read("classificadorLBPH.yml")  # classific# ador sem redimensionamento
 
 # >>> Escolher a escala de redimensionamento
 largura, altura = 220, 220
